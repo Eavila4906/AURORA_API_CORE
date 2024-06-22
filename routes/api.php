@@ -6,9 +6,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\SubmoduleController;
+use App\Http\Controllers\ItemController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\Permission_submoduleController;
+use App\Http\Controllers\Permission_itemController;
 use App\Http\Controllers\User_roleController;
+use App\Http\Controllers\MenuController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +34,13 @@ Route::get('/notauthenticated', function () {
 
 Route::middleware('auth:api')->group(function () {
     /**
+     * Validate auth path
+     */
+    Route::get('/validateToken', function () {
+        return response()->json(['message' => 'Token valid', 'status' => 'ok'], 200);
+    });
+
+    /**
      * Logout path
      */
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -37,6 +49,11 @@ Route::middleware('auth:api')->group(function () {
      * Authenticated user paths
      */
     Route::get('/authenticated/user', [AuthController::class, 'show']);
+
+    /**
+     * Menu path
+     */
+    Route::post('/menu', [MenuController::class, 'index']);
 
     /** 
      * Users paths
@@ -57,6 +74,24 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/module/delete/{id}', [ModuleController::class, 'destroy']);
 
     /** 
+     * Submodules paths
+     */
+    Route::get('/submodules', [SubmoduleController::class, 'index']);
+    Route::get('/submodule/{id}', [SubmoduleController::class, 'show']);
+    Route::post('/submodule/create', [SubmoduleController::class, 'store']);
+    Route::put('/submodule/update/{id}', [SubmoduleController::class, 'update']);
+    Route::delete('/submodule/delete/{id}', [SubmoduleController::class, 'destroy']);
+
+    /** 
+     * Items paths
+     */
+    Route::get('/items', [ItemController::class, 'index']);
+    Route::get('/item/{id}', [ItemController::class, 'show']);
+    Route::post('/item/create', [ItemController::class, 'store']);
+    Route::put('/item/update/{id}', [ItemController::class, 'update']);
+    Route::delete('/item/delete/{id}', [ItemController::class, 'destroy']);
+
+    /** 
      * Roles paths
      */
     Route::get('/roles', [RoleController::class, 'index']);
@@ -66,7 +101,7 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/role/delete/{id}', [RoleController::class, 'destroy']);
 
     /**
-     * Permissions paths
+     * Permissions modules paths
      */
     Route::post('/permissions/assign', [PermissionController::class, 'store']);
     Route::get('/permissions/role/{id}', [PermissionController::class, 'showByRole']);
@@ -74,10 +109,24 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/permissions/modules/{id}', [PermissionController::class, 'showModulesByRole']);
 
     /**
+     * Permissions submodules paths
+     */
+    Route::post('/permissions_submodule/assign', [Permission_submoduleController::class, 'store']);
+    Route::get('/permissions_submodule/role/{id}', [Permission_submoduleController::class, 'showByRole']);
+    Route::get('/permissions_submodule/submodule/{smId}/role/{rId}', [Permission_submoduleController::class, 'showBySubmodule']);
+    Route::get('/permissions_submodule/submodules/{id}', [Permission_submoduleController::class, 'showSubmodulesByRole']);
+
+    /**
+     * Permissions items paths
+     */
+    Route::post('/permissions_item/assign', [Permission_itemController::class, 'store']);
+    Route::get('/permissions_item/role/{id}', [Permission_itemController::class, 'showByRole']);
+    Route::get('/permissions_item/item/{itemId}/role/{rId}', [Permission_itemController::class, 'showByItem']);
+    Route::get('/permissions_item/items/{id}', [Permission_itemController::class, 'showItemsByRole']);
+
+    /**
      * User roles paths
      */
     Route::post('/user_roles/assign', [User_roleController::class, 'store']);
     Route::get('/user_roles/role/{id}', [User_roleController::class, 'show']);
 });
-
-//Route::post('/user/create', [UserController::class, 'store']);

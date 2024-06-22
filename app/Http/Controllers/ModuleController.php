@@ -40,7 +40,9 @@ class ModuleController extends Controller
 
         $module = Module::create([
             'module' => $request->module,
+            'path' => $request->path,
             'description' => $request->description,
+            'icon' => $request->icon,
             'status' => $request->status,
         ]);
 
@@ -68,7 +70,9 @@ class ModuleController extends Controller
         }
 
         $module->module = $request->module;
+        $module->path = $request->path;
         $module->description = $request->description;
+        $module->icon = $request->icon;
         $module->status = $request->status;
         $module->save();
 
@@ -81,6 +85,10 @@ class ModuleController extends Controller
 
         if (!$module) {
             return response()->json(['message' => 'Module not found'], 404);
+        }
+
+        if ($module->submodules()->count() > 0) {
+            return response()->json(['message' => 'Module cannot be deleted because it has associated submodules'], 400);
         }
 
         $module->delete();

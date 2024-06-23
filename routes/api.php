@@ -14,6 +14,8 @@ use App\Http\Controllers\Permission_submoduleController;
 use App\Http\Controllers\Permission_itemController;
 use App\Http\Controllers\User_roleController;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\User_companyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -129,4 +131,19 @@ Route::middleware('auth:api')->group(function () {
      */
     Route::post('/user_roles/assign', [User_roleController::class, 'store']);
     Route::get('/user_roles/role/{id}', [User_roleController::class, 'show']);
+
+    /**
+     * Company paths
+     */
+    Route::get('/companies', [CompanyController::class, 'index']);
+    Route::get('/company/{id}', [CompanyController::class, 'show']);
+    Route::post('/company/create', [CompanyController::class, 'store']);
+    Route::put('/company/update/{id}', [CompanyController::class, 'update']);
+    Route::delete('/company/delete/{id}', [CompanyController::class, 'destroy']);
+
+    /**
+     * User company paths
+     */
+    Route::post('/user_companies/assign', [User_companyController::class, 'store']);
+    Route::get('/user_companies/company/{id}', [User_companyController::class, 'show']);
 });

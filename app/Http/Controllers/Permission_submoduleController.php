@@ -50,33 +50,45 @@ class Permission_submoduleController extends Controller
 
         $reqPermissionsRol['submodules'] = $reqSubmodule;
     
-        return response()->json(['data' => $reqPermissionsRol], 200);
+        return response()->json([
+            'message' => 'Registros encontrados', 
+            'data' => $reqPermissionsRol, 
+            'status' => 200
+        ], 200);
     }
 
     public function showBySubmodule($smId, $rId) 
     {
         $reqPermissions = Permission_submodule::submodulesPermissions($rId);
 
-        $permissions = ['message' => 'There are no permissions assigned for this submodule.'];
+        $permissions = ['message' => 'No hay permisos asignados para este submódulo.'];
                     
         if (count($reqPermissions) > 0) {
             $permissions = isset($reqPermissions[$smId]) ? $reqPermissions[$smId] : "";
         }
 
-        return response()->json(['permissions' => $permissions], 200);
+        return response()->json([
+            'message' => 'Registro encontrado', 
+            'data' => $permissions, 
+            'status' => 200
+        ], 200);
     }
 
     public function showSubmodulesByRole($id) 
     {
         $permissions = Permission_submodule::submodulesPermissions($id);
 
-        $submodulePermissions = ['message' => 'There are no permissions assigned for this submodule.'];
+        $submodulePermissions = ['message' => 'No hay permisos asignados para este submódulo.'];
 
         if (count($permissions) > 0) {
             $submodulePermissions = $permissions;
         }
 
-        return response()->json(['permissions' => $submodulePermissions], 200);
+        return response()->json([
+            'message' => 'Registro encontrado', 
+            'data' => $submodulePermissions, 
+            'status' => 200
+        ], 200);
     }
 
     public function store(Request $request)
@@ -89,7 +101,11 @@ class Permission_submoduleController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             $errors = $e->validator->errors();
             $message = $errors ? 'All fields are required' : null;
-            return response()->json(['message' => $message], 422);
+            
+            return response()->json([
+                'message' => $message, 
+                'status' => 422
+            ], 422);
         }
 
         Permission_submodule::where('rol', $request->rol)->delete();
@@ -112,8 +128,9 @@ class Permission_submoduleController extends Controller
         }
 
         return response()->json([
-            'message' => 'Permissions assigned successfully', 
-            'permissions' => $permissions
+            'message' => 'Permisos asignados exitosamente', 
+            'data' => $permissions, 
+            'status' => 201
         ], 201);
     }
 }

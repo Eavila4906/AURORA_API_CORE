@@ -50,7 +50,11 @@ class PermissionController extends Controller
 
         $reqPermissionsRol['modules'] = $reqModule;
     
-        return response()->json(['data' => $reqPermissionsRol], 200);
+        return response()->json([
+            'message' => 'Registros encontrados', 
+            'data' => $reqPermissionsRol, 
+            'status' => 200
+        ], 200);
     }
 
     public function showByModule($mId, $rId) 
@@ -63,20 +67,28 @@ class PermissionController extends Controller
             $permissions = isset($reqPermissions[$mId]) ? $reqPermissions[$mId] : "";
         }
 
-        return response()->json(['permissions' => $permissions], 200);
+        return response()->json([
+            'message' => 'Registro encontrado', 
+            'data' => $permissions, 
+            'status' => 200
+        ], 200);
     }
 
     public function showModulesByRole($id) 
     {
         $permissions = Permission::modulesPermissions($id);
 
-        $modulePermissions = ['message' => 'There are no permissions assigned for this module.'];
+        $modulePermissions = ['message' => 'No hay permisos asignados para este módulo.'];
 
         if (count($permissions) > 0) {
             $modulePermissions = $permissions;
         }
 
-        return response()->json(['permissions' => $modulePermissions], 200);
+        return response()->json([
+            'message' => 'Registro encontrado', 
+            'data' => $modulePermissions, 
+            'status' => 200
+        ], 200);
     }
 
     public function store(Request $request)
@@ -89,7 +101,11 @@ class PermissionController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             $errors = $e->validator->errors();
             $message = $errors ? 'All fields are required' : null;
-            return response()->json(['message' => $message], 422);
+            
+            return response()->json([
+                'message' => $message, 
+                'status' => 422
+            ], 422);
         }
 
         Permission::where('rol', $request->rol)->delete();
@@ -112,8 +128,9 @@ class PermissionController extends Controller
         }
 
         return response()->json([
-            'message' => 'Permissions assigned successfully', 
-            'permissions' => $permissions
+            'message' => 'Permisos asignados exitosamente', 
+            'data' => $permissions, 
+            'status' => 201
         ], 201);
     }
 }

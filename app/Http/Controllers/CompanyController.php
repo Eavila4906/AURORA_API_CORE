@@ -11,7 +11,12 @@ class CompanyController extends Controller
     public function index()
     {
         $companys = Company::all();
-        return response()->json(['companies' => $companys], 200);
+        
+        return response()->json([
+            'message' => 'Registros encontrados', 
+            'data' => $companys, 
+            'status' => 200
+        ], 200);
     }
 
     public function show($id)
@@ -19,10 +24,17 @@ class CompanyController extends Controller
         $company = Company::find($id);
 
         if (!$company) {
-            return response()->json(['message' => 'Company not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
 
-        return response()->json(['company' => $company], 200);
+        return response()->json([
+            'message' => 'Registro encontrado', 
+            'data' => $company, 
+            'status' => 200
+        ], 200);
     }
 
     public function store(Request $request)
@@ -36,7 +48,11 @@ class CompanyController extends Controller
             $errors = $e->validator->errors();
             $error = $errors->get('name');
             $message = $error ? 'This record already exists.' : 'All fields are required';
-            return response()->json(['message' => $message], 422);
+            
+            return response()->json([
+                'message' => $message, 
+                'status' => 422
+            ], 422);
         }
 
         $company = Company::create([
@@ -45,7 +61,11 @@ class CompanyController extends Controller
             'status' => $request->status,
         ]);
 
-        return response()->json(['message' => 'Company registered successfully', 'company' => $company], 201);
+        return response()->json([
+            'message' => 'Empresa registrada exitosamente', 
+            'data' => $company, 
+            'status' => 201
+        ], 201);
     }
 
     public function update(Request $request, $id)
@@ -53,7 +73,10 @@ class CompanyController extends Controller
         $company = Company::find($id);
 
         if (!$company) {
-            return response()->json(['message' => 'Company not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
 
         try {
@@ -65,7 +88,11 @@ class CompanyController extends Controller
             $errors = $e->validator->errors();
             $error = $errors->get('name');
             $message = $error ? 'This record already exists.' : 'All fields are required';
-            return response()->json(['message' => $message], 422);
+            
+            return response()->json([
+                'message' => $message, 
+                'status' => 422
+            ], 422);
         }
 
         $company->name = $request->name;
@@ -73,7 +100,11 @@ class CompanyController extends Controller
         $company->status = $request->status;
         $company->save();
 
-        return response()->json(['message' => 'Company updated successfully', 'company' => $company], 200);
+        return response()->json([
+            'message' => 'Empresa editada exitosamente', 
+            'data' => $company, 
+            'status' => 200
+        ], 200);
     }
 
     public function destroy($id)
@@ -81,18 +112,27 @@ class CompanyController extends Controller
         $company = Company::find($id);
 
         if (!$company) {
-            return response()->json(['message' => 'Company not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
 
         $user_companies = User_company::where('company', $id)->get();
         foreach ($user_companies as $user_company) {
             if ($user_company->status == 1) {
-                return response()->json(['message' => 'You cannot delete a company that is associated with a user.'], 422);
+                return response()->json([
+                    'message' => 'No se puede eliminar una empresa que esté asociada a un usuario.'
+                ], 422);
             }
         }
 
         $company->delete();
 
-        return response()->json(['message' => 'Company deleted successfully', 'company' => $company], 200);
+        return response()->json([
+            'message' => 'Empresa eliminada exitosamente', 
+            'data' => $company, 
+            'status' => 200
+        ], 200);
     }
 }

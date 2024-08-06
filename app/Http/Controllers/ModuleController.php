@@ -10,7 +10,12 @@ class ModuleController extends Controller
     public function index()
     {
         $modules = Module::all();
-        return response()->json(['modules' => $modules], 200);
+        
+        return response()->json([
+            'message' => 'Registros encontrados', 
+            'data' => $modules, 
+            'status' => 200
+        ], 200);
     }
 
     public function show($id)
@@ -18,10 +23,17 @@ class ModuleController extends Controller
         $module = Module::find($id);
 
         if (!$module) {
-            return response()->json(['message' => 'Module not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
 
-        return response()->json(['module' => $module], 200);
+        return response()->json([
+            'message' => 'Registro encontrado', 
+            'data' => $module, 
+            'status' => 200
+        ], 200);
     }
 
     public function store(Request $request)
@@ -35,7 +47,12 @@ class ModuleController extends Controller
             $errors = $e->validator->errors();
             $error = $errors->get('module');
             $message = $error ? 'This record already exists.' : 'All fields are required';
-            return response()->json(['message' => $message], 422);
+            
+
+            return response()->json([
+                'message' => $message, 
+                'status' => 422
+            ], 422);
         }
 
         $module = Module::create([
@@ -46,7 +63,11 @@ class ModuleController extends Controller
             'status' => $request->status,
         ]);
 
-        return response()->json(['message' => 'Module registered successfully', 'module' => $module], 201);
+        return response()->json([
+            'message' => 'Módulo registrado exitosamente', 
+            'data' => $module, 
+            'status' => 201
+        ], 201);
     }
 
     public function update(Request $request, $id)
@@ -54,7 +75,10 @@ class ModuleController extends Controller
         $module = Module::find($id);
 
         if (!$module) {
-            return response()->json(['message' => 'Module not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
 
         try {
@@ -66,7 +90,11 @@ class ModuleController extends Controller
             $errors = $e->validator->errors();
             $error = $errors->get('module');
             $message = $error ? 'This record already exists.' : 'All fields are required';
-            return response()->json(['message' => $message], 422);
+            
+            return response()->json([
+                'message' => $message, 
+                'status' => 422
+            ], 422);
         }
 
         $module->module = $request->module;
@@ -76,7 +104,11 @@ class ModuleController extends Controller
         $module->status = $request->status;
         $module->save();
 
-        return response()->json(['message' => 'Module updated successfully', 'module' => $module], 200);
+        return response()->json([
+            'message' => 'Módulo editado exitosamente', 
+            'data' => $module, 
+            'status' => 200
+        ], 200);
     }
 
     public function destroy($id)
@@ -84,15 +116,25 @@ class ModuleController extends Controller
         $module = Module::find($id);
 
         if (!$module) {
-            return response()->json(['message' => 'Module not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
 
         if ($module->submodules()->count() > 0) {
-            return response()->json(['message' => 'Module cannot be deleted because it has associated submodules'], 400);
+            return response()->json([
+                'message' => 'El módulo no se puede eliminar porque tiene submódulos asociados',
+                'status' => 400
+            ], 400);
         }
 
         $module->delete();
 
-        return response()->json(['message' => 'Module deleted successfully', 'module' => $module], 200);
+        return response()->json([
+            'message' => 'Módulo eliminado exitosamente', 
+            'data' => $module, 
+            'status' => 200
+        ], 200);
     }
 }

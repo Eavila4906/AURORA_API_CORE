@@ -68,6 +68,10 @@ class MenuController extends Controller
             ];
         })->filter(); // Eliminar elementos nulos
 
-        return response()->json(['menu' => $menu], 200);
+        return response()->json([
+            'message' => 'Registros encontrados',
+            'data' => $menu,
+            'status' => 200
+        ], 200);
     }
 }

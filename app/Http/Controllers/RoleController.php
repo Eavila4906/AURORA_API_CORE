@@ -12,7 +12,12 @@ class RoleController extends Controller
     public function index()
     {
         $roles = Role::all();
-        return response()->json(['roles' => $roles], 200);
+        
+        return response()->json([
+            'message' => 'Registros encontrados', 
+            'data' => $roles, 
+            'status' => 200
+        ], 200);
     }
 
     public function show($id)
@@ -20,10 +25,17 @@ class RoleController extends Controller
         $role = Role::find($id);
 
         if (!$role) {
-            return response()->json(['message' => 'Role not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
 
-        return response()->json(['role' => $role], 200);
+        return response()->json([
+            'message' => 'Registro encontrado', 
+            'data' => $role, 
+            'status' => 200
+        ], 200);
     }
 
     public function store(Request $request)
@@ -37,7 +49,11 @@ class RoleController extends Controller
             $errors = $e->validator->errors();
             $error = $errors->get('rol');
             $message = $error ? 'This record already exists.' : 'All fields are required';
-            return response()->json(['message' => $message], 422);
+            
+            return response()->json([
+                'message' => $message, 
+                'status' => 422
+            ], 422);
         }
 
         $role = Role::create([
@@ -46,7 +62,11 @@ class RoleController extends Controller
             'status' => $request->status,
         ]);
 
-        return response()->json(['message' => 'Role registered successfully', 'role' => $role], 201);
+        return response()->json([
+            'message' => 'Rol registrado exitosamente', 
+            'data' => $role, 
+            'status' => 201
+        ], 201);
     }
 
     public function update(Request $request, $id)
@@ -54,7 +74,10 @@ class RoleController extends Controller
         $role = Role::find($id);
 
         if (!$role) {
-            return response()->json(['message' => 'Role not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
 
         try {
@@ -66,7 +89,11 @@ class RoleController extends Controller
             $errors = $e->validator->errors();
             $error = $errors->get('rol');
             $message = $error ? 'This record already exists.' : 'All fields are required';
-            return response()->json(['message' => $message], 422);
+            
+            return response()->json([
+                'message' => $message, 
+                'status' => 422
+            ], 422);
         }
 
         $role->rol = $request->rol;
@@ -74,7 +101,11 @@ class RoleController extends Controller
         $role->status = $request->status;
         $role->save();
 
-        return response()->json(['message' => 'Role updated successfully', 'role' => $role], 200);
+        return response()->json([
+            'message' => 'Rol editado exitosamente', 
+            'data' => $role, 
+            'status' => 200
+        ], 200);
     }
 
     public function destroy($id)
@@ -82,20 +113,29 @@ class RoleController extends Controller
         $role = Role::find($id);
 
         if (!$role) {
-            return response()->json(['message' => 'Role not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
 
         $user_roles = User_role::where('rol', $id)->get();
         foreach ($user_roles as $user_role) {
             if ($user_role->status == 1) {
-                return response()->json(['message' => 'You cannot delete a role that is assigned to a user.'], 422);
+                return response()->json([
+                    'message' => 'No puede eliminar un rol asignado a un usuario.',
+                    'status' => 422
+                ], 422);
             }
         }
 
         $permissions = Permission::where('rol', $id)->get();
         foreach ($permissions as $permission) {
             if ($permission->r == 1 || $permission->w == 1 || $permission->u == 1 || $permission->d == 1) {
-                return response()->json(['message' => 'You cannot delete a role that has permissions assigned to it.'], 422);
+                return response()->json([
+                    'message' => 'No puede eliminar un rol que tenga permisos asignados.',
+                    'status' => 422
+                ], 422);
             }
         }
         
@@ -103,6 +143,10 @@ class RoleController extends Controller
         Permission::where('rol', $id)->delete();
         $role->delete();
 
-        return response()->json(['message' => 'Role deleted successfully', 'role' => $role], 200);
+        return response()->json([
+            'message' => 'Role eliminado exitosamente', 
+            'data' => $role, 
+            'status' => 200
+        ], 200);
     }
 }

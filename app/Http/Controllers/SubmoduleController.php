@@ -11,7 +11,12 @@ class SubmoduleController extends Controller
     public function index()
     {
         $submodules = Submodule::all();
-        return response()->json(['submodules' => $submodules], 200);
+
+        return response()->json([
+            'message' => 'Registros encontrados', 
+            'data' => $submodules, 
+            'status' => 200
+        ], 200);
     }
 
     public function show($id)
@@ -19,10 +24,17 @@ class SubmoduleController extends Controller
         $submodule = Submodule::find($id);
 
         if (!$submodule) {
-            return response()->json(['message' => 'Submodule not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
 
-        return response()->json(['submodule' => $submodule], 200);
+        return response()->json([
+            'message' => 'Registro encontrado', 
+            'data' => $submodule, 
+            'status' => 200
+        ], 200);
     }
 
     public function store(Request $request)
@@ -37,12 +49,19 @@ class SubmoduleController extends Controller
             $errors = $e->validator->errors();
             $error = $errors->get('submodule');
             $message = $error ? 'This record already exists.' : 'All fields are required';
-            return response()->json(['message' => $message], 422);
+            
+            return response()->json([
+                'message' => $message, 
+                'status' => 422
+            ], 422);
         }
 
         $module = Module::find($request->module_id);
         if (!is_object($module)) {
-            return response()->json(['message' => 'Module not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el módulo', 
+                'status' => 404
+            ], 404);
         }
 
         $submodule = Submodule::create([
@@ -54,10 +73,11 @@ class SubmoduleController extends Controller
             'status' => $request->status,
         ]);
 
-        return response()->json(
-            ['message' => 'Submodule registered successfully', 'submodule' => $submodule], 
-            201
-        );
+        return response()->json([
+            'message' => 'Submódulo registrado exitosamente', 
+            'data' => $submodule, 
+            'status' => 201
+        ], 201);
     }
 
     public function update(Request $request, $id)
@@ -65,7 +85,10 @@ class SubmoduleController extends Controller
         $submodule = Submodule::find($id);
 
         if (!$submodule) {
-            return response()->json(['message' => 'Submodule not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
 
         try {
@@ -77,7 +100,11 @@ class SubmoduleController extends Controller
             $errors = $e->validator->errors();
             $error = $errors->get('submodule');
             $message = $error ? 'This record already exists.' : 'All fields are required';
-            return response()->json(['message' => $message], 422);
+           
+            return response()->json([
+                'message' => $message, 
+                'status' => 422
+            ], 422);
         }
 
         $submodule->submodule = $request->submodule;
@@ -87,7 +114,11 @@ class SubmoduleController extends Controller
         $submodule->status = $request->status;
         $submodule->save();
 
-        return response()->json(['message' => 'Submodule updated successfully', 'submodule' => $submodule], 200);
+        return response()->json([
+            'message' => 'Submódulo editado exitosamente', 
+            'data' => $submodule, 
+            'status' => 200
+        ], 200);
     }
 
     public function destroy($id)
@@ -95,15 +126,25 @@ class SubmoduleController extends Controller
         $submodule = Submodule::find($id);
 
         if (!$submodule) {
-            return response()->json(['message' => 'Submodule not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
 
         if ($submodule->items()->count() > 0) {
-            return response()->json(['message' => 'Submodule cannot be deleted because it has associated items'], 400);
+            return response()->json([
+                'message' => 'El submódulo no se puede eliminar porque tiene items asociados',
+                'status' => 400
+            ], 400);
         }
 
         $submodule->delete();
 
-        return response()->json(['message' => 'Submodule deleted successfully', 'submodule' => $submodule], 200);
+        return response()->json([
+            'message' => 'Submódulo eliminado exitosamente', 
+            'data' => $submodule, 
+            'status' => 200
+        ], 200);
     }
 }

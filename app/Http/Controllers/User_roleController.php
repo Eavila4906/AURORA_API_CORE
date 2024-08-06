@@ -19,7 +19,11 @@ class User_roleController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             $errors = $e->validator->errors();
             $message = $error ? 'All fields are required' : null;
-            return response()->json(['message' => $message], 422);
+            
+            return response()->json([
+                'message' => $message, 
+                'status' => 422
+            ], 422);
         }
 
         User_role::where('user', $request->user)->delete();
@@ -36,8 +40,9 @@ class User_roleController extends Controller
         }
 
         return response()->json([
-            'message' => 'User roles assigned successfully', 
-            'user_roles' => $user_roles
+            'message' => 'Roles de usuario asignado exitosamente', 
+            'data' => $user_roles, 
+            'status' => 201
         ], 201);
     }
 
@@ -46,7 +51,10 @@ class User_roleController extends Controller
         $user = User::find($id);
 
         if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
 
         $roles = Role::where('status', 1)->select('id', 'rol')->get();
@@ -79,6 +87,10 @@ class User_roleController extends Controller
         }
         $userRoles['rol'] = $roles;
 
-        return response()->json(['userRoles' => $userRoles], 200);
+        return response()->json([
+            'message' => 'Registros encontrados', 
+            'data' => $userRoles, 
+            'status' => 200
+        ], 200);
     }
 }

@@ -20,7 +20,11 @@ class UserController extends Controller
             $user->roles = $userRoles;
         }
         
-        return response()->json(['users' => $users], 200);
+        return response()->json([
+            'message' => 'Registros encontrados', 
+            'data' => $users, 
+            'status' => 200
+        ], 200);
     }
 
     public function show($id)
@@ -28,12 +32,19 @@ class UserController extends Controller
         $user = User::find($id);
 
         if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
 
         $user->roles = User::userRoles($user); 
 
-        return response()->json(['user' => $user], 200);
+        return response()->json([
+            'message' => 'Registro encontrado', 
+            'data' => $user, 
+            'status' => 200
+        ], 200);
     }
 
     public function store(Request $request)
@@ -62,7 +73,11 @@ class UserController extends Controller
             if ($errors->get('name') || $errors->get('lastname') || $errors->get('status')) {
                 $message = 'All fields are required';
             }
-            return response()->json(['message' => $message], 422);
+
+            return response()->json([
+                'message' => $message, 
+                'status' => 422
+            ], 422);
         }
 
         $user = User::create([
@@ -91,7 +106,11 @@ class UserController extends Controller
 
         $user->roles = $userRoles;
 
-        return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
+        return response()->json([
+            'message' => 'Usuario registrado exitosamente', 
+            'data' => $user, 
+            'status' => 201
+        ], 201);
     }
 
     public function update(Request $request, $id)
@@ -99,7 +118,10 @@ class UserController extends Controller
         $user = User::find($id);
 
         if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
 
         try {
@@ -124,17 +146,24 @@ class UserController extends Controller
             if ($errors->get('name') || $errors->get('lastname') || $errors->get('status')) {
                 $message = 'All fields are required';
             }
-            return response()->json(['message' => $message], 422);
+            
+            return response()->json([
+                'message' => $message, 
+                'status' => 422
+            ], 422);
         }
 
         $user->name = $request->name;
         $user->lastname = $request->lastname;
-        //$user->username = $request->username;
         $user->email = $request->email;
         $user->status = $request->status;
         $user->save();
 
-        return response()->json(['message' => 'User updated successfully', 'user' => $user], 200);
+        return response()->json([
+            'message' => 'Usuario editado exitosamente', 
+            'data' => $user, 
+            'status' => 200
+        ], 200);
     }
 
     public function destroy($id)
@@ -142,12 +171,19 @@ class UserController extends Controller
         $user = User::find($id);
 
         if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
         
         User_role::where('user', $id)->delete();
         $user->delete();
 
-        return response()->json(['message' => 'User deleted successfully', 'user' => $user], 200);
+        return response()->json([
+            'message' => 'Usuario eliminado exitosamente', 
+            'data' => $user, 
+            'status' => 200
+        ], 200);
     }
 }

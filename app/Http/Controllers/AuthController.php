@@ -19,7 +19,11 @@ class AuthController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             $errors = $e->validator->errors();
             $message = $errors ? 'All fields are required' : null;
-            return response()->json(['message' => $message], 422);
+            
+            return response()->json([
+                'message' => $message, 
+                'status' => 422
+            ], 422);
         }
 
         if (Auth::attempt(['username' => $request->user, 'password' => $request->password]) ||
@@ -42,9 +46,16 @@ class AuthController extends Controller
                 ]
             ];
 
-            return response()->json($data, 200);
+            return response()->json([
+                'message' => 'Se ha iniciado sesión exitosamente', 
+                'data' => $data, 
+                'status' => 200
+            ], 200);
         } else {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+            return response()->json([
+                'message' => 'Credenciales incorrectas',
+                'status' => 401
+            ], 401);
         }
     }
 
@@ -53,10 +64,16 @@ class AuthController extends Controller
         if (Auth::check()) {
             $user = Auth::user();
             $user->tokens()->delete();
-            return response()->json(['message' => 'Successfully logged out'], 200);
+            return response()->json([
+                'message' => 'Se ha cerrado sesión exitosamente',
+                'status' => 200
+            ], 200);
         }
 
-        return response()->json(['message' => 'User not authenticated'], 401);
+        return response()->json([
+            'message' => 'Usuario no autenticado',
+            'status' => 401
+        ], 401);
     }
 
     public function show() 
@@ -64,6 +81,10 @@ class AuthController extends Controller
         $user = auth()->user();
         $userRoles = User::userRoles($user);
         $user->roles = $userRoles;
-        return response()->json(['user' => $user]);
+        return response()->json([
+            'message' => 'Usuario autenticado',
+            'data' => $user,
+            'status' => 200
+        ], 200);
     }
 }

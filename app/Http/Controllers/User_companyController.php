@@ -19,7 +19,11 @@ class User_companyController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             $errors = $e->validator->errors();
             $message = $error ? 'All fields are required' : null;
-            return response()->json(['message' => $message], 422);
+            
+            return response()->json([
+                'message' => $message, 
+                'status' => 422
+            ], 422);
         }
 
         User_company::where('user', $request->user)->delete();
@@ -36,8 +40,9 @@ class User_companyController extends Controller
         }
 
         return response()->json([
-            'message' => 'User companies assigned successfully', 
-            'user_companies' => $user_companies
+            'message' => 'Empresa asignada al usuario exitosamente', 
+            'data' => $user_companies, 
+            'status' => 201
         ], 201);
     }
 
@@ -46,7 +51,10 @@ class User_companyController extends Controller
         $user = User::find($id);
 
         if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
 
         $companies = Company::where('status', 1)->select('id', 'name')->get();
@@ -79,6 +87,10 @@ class User_companyController extends Controller
         }
         $userCompanies['name'] = $companies;
 
-        return response()->json(['userCompanies' => $userCompanies], 200);
+        return response()->json([
+            'message' => 'Registros encontrados', 
+            'data' => $userCompanies, 
+            'status' => 200
+        ], 200);
     }
 }

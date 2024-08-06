@@ -11,7 +11,12 @@ class ItemController extends Controller
     public function index()
     {
         $items = Item::all();
-        return response()->json(['items' => $items], 200);
+
+        return response()->json([
+            'message' => 'Registros encontrados', 
+            'data' => $items, 
+            'status' => 200
+        ], 200);
     }
 
     public function show($id)
@@ -19,10 +24,17 @@ class ItemController extends Controller
         $item = Item::find($id);
 
         if (!$item) {
-            return response()->json(['message' => 'Item not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
 
-        return response()->json(['item' => $item], 200);
+        return response()->json([
+            'message' => 'Registro encontrado', 
+            'data' => $item, 
+            'status' => 200
+        ], 200);
     }
 
     public function store(Request $request)
@@ -37,12 +49,19 @@ class ItemController extends Controller
             $errors = $e->validator->errors();
             $error = $errors->get('item');
             $message = $error ? 'This record already exists.' : 'All fields are required';
-            return response()->json(['message' => $message], 422);
+            
+            return response()->json([
+                'message' => $message, 
+                'status' => 422
+            ], 422);
         }
 
         $submodule = Submodule::find($request->submodule_id);
         if (!is_object($submodule)) {
-            return response()->json(['message' => 'Submodule not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el Submódulo', 
+                'status' => 404
+            ], 404);
         }
 
         $item = Item::create([
@@ -54,10 +73,11 @@ class ItemController extends Controller
             'status' => $request->status,
         ]);
 
-        return response()->json(
-            ['message' => 'Item registered successfully', 'item' => $item], 
-            201
-        );
+        return response()->json([
+            'message' => 'Item registrado exitosamente', 
+            'data' => $item, 
+            'status' => 201
+        ], 201);
     }
 
     public function update(Request $request, $id)
@@ -65,7 +85,10 @@ class ItemController extends Controller
         $item = Item::find($id);
 
         if (!$item) {
-            return response()->json(['message' => 'Item not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
 
         try {
@@ -77,7 +100,11 @@ class ItemController extends Controller
             $errors = $e->validator->errors();
             $error = $errors->get('item');
             $message = $error ? 'This record already exists.' : 'All fields are required';
-            return response()->json(['message' => $message], 422);
+            
+            return response()->json([
+                'message' => $message, 
+                'status' => 422
+            ], 422);
         }
 
         $item->item = $request->item;
@@ -87,7 +114,11 @@ class ItemController extends Controller
         $item->status = $request->status;
         $item->save();
 
-        return response()->json(['message' => 'Item updated successfully', 'item' => $item], 200);
+        return response()->json([
+            'message' => 'Item editado exitosamente', 
+            'data' => $item, 
+            'status' => 200
+        ], 200);
     }
 
     public function destroy($id)
@@ -95,11 +126,18 @@ class ItemController extends Controller
         $item = Item::find($id);
 
         if (!$item) {
-            return response()->json(['message' => 'Item not found'], 404);
+            return response()->json([
+                'message' => 'No se encontró el registro', 
+                'status' => 404
+            ], 404);
         }
 
         $item->delete();
 
-        return response()->json(['message' => 'Item deleted successfully', 'item' => $item], 200);
+        return response()->json([
+            'message' => 'Item eliminado exitosamente', 
+            'data' => $item, 
+            'status' => 200
+        ], 200);
     }
 }

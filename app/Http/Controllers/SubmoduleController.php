@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Submodule;
 use App\Models\Module;
+use App\Models\Permission_submodule;
 
 class SubmoduleController extends Controller
 {
     public function index()
     {
-        $submodules = Submodule::all();
+        $submodules = Submodule::with(['module:id,module'])->get();
 
         return response()->json([
             'message' => 'Registros encontrados', 
@@ -21,7 +22,7 @@ class SubmoduleController extends Controller
 
     public function show($id)
     {
-        $submodule = Submodule::find($id);
+        $submodule = Submodule::with(['module:id,module'])->find($id);
 
         if (!$submodule) {
             return response()->json([
@@ -108,6 +109,7 @@ class SubmoduleController extends Controller
         }
 
         $submodule->submodule = $request->submodule;
+        $submodule->module_id = $request->module_id;
         $submodule->path = $request->path;
         $submodule->description = $request->description;
         $submodule->icon = $request->icon;
@@ -132,6 +134,23 @@ class SubmoduleController extends Controller
             ], 404);
         }
 
+        $permissions = Permission_submodule::where('submodule', $id)
+        ->where(function($query) {
+            $query->where('r', 1)
+                ->orWhere('w', 1)
+                ->orWhere('u', 1)
+                ->orWhere('d', 1);
+        })
+        ->get();
+        
+        if ($permissions->isNotEmpty()) 
+        {
+            return response()->json([
+                'message' => 'El submódulo no se puede eliminar porque tiene permisos asignados',
+                'status' => 400
+            ], 400);
+        }
+
         if ($submodule->items()->count() > 0) {
             return response()->json([
                 'message' => 'El submódulo no se puede eliminar porque tiene items asociados',
@@ -139,6 +158,7 @@ class SubmoduleController extends Controller
             ], 400);
         }
 
+        Permission_submodule::where('submodule', $id)->delete();
         $submodule->delete();
 
         return response()->json([

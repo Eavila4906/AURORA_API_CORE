@@ -34,7 +34,7 @@ Route::get('/notauthenticated', function () {
     return response()->json(['message' => 'User not authenticated'], 401);
 })->name('notauthenticated');
 
-Route::middleware('auth:api')->group(function () {
+Route::middleware(['auth:api', 'throttle:100,1'])->group(function () {
     /**
      * Validate auth path
      */

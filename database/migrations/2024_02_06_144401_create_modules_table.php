@@ -13,7 +13,7 @@ class CreateModulesTable extends Migration
             $table->string('module', 25);
             $table->string('path', 25);
             $table->string('description', 150)->nullable();
-            $table->string('icon', 150);
+            $table->string('icon', 150)->nullable();
             $table->integer('status');
             $table->timestamps();
         });

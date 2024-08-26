@@ -33,7 +33,9 @@ class AuthController extends Controller
             $token = $user->createToken($request->email)->accessToken;
 
             $userRoles = User::userRoles($user);
+            $userCompanies = User::userCompanies($user);
             $user->roles = $userRoles;
+            $user->companies = $userCompanies;
 
             $data = [
                 'access_token' => $token,
@@ -42,7 +44,8 @@ class AuthController extends Controller
                     'username' => $user->username,
                     'name' => $user->name,
                     'lastname' => $user->lastname,
-                    'roles' => $user->roles
+                    'roles' => $user->roles,
+                    'companies' => $user->companies
                 ]
             ];
 
@@ -80,7 +83,9 @@ class AuthController extends Controller
     {
         $user = auth()->user();
         $userRoles = User::userRoles($user);
+        $userCompanies = User::userCompanies($user);
         $user->roles = $userRoles;
+        $user->companies = $userCompanies;
         return response()->json([
             'message' => 'Usuario autenticado',
             'data' => $user,

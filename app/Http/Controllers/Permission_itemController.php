@@ -10,7 +10,8 @@ class Permission_itemController extends Controller
 {
     public function showByRole($id) 
     {
-        $reqItem = Item::where('status', '!=', 0)->select('id', 'item')->get();
+        $reqItem = Item::where('status', '!=', 0)->with('submodule:id,submodule')
+        ->select('id', 'item', 'submodule_id')->get();
         $reqPermissions = Permission_item::where('rol', $id)->get();
     
         $reqPermissionsDefault = [

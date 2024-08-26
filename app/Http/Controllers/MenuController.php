@@ -16,7 +16,8 @@ class MenuController extends Controller
         $currentRole = $request->role;
 
         // Obtener todos los módulos con sus submódulos e ítems
-        $modules = Module::with(['submodules.items'])->get();
+        $modules = Module::with(['submodules.items'])
+        ->where('status', 1)->get();
 
         // Obtener permisos del rol actual
         $modulePermissions = Permission::where('rol', $currentRole)->pluck('r', 'module');

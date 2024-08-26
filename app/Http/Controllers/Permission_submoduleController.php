@@ -10,7 +10,8 @@ class Permission_submoduleController extends Controller
 {
     public function showByRole($id) 
     {
-        $reqSubmodule = Submodule::where('status', '!=', 0)->select('id', 'submodule')->get();
+        $reqSubmodule = Submodule::where('status', '!=', 0)->with('module:id,module')
+        ->select('id', 'submodule', 'module_id')->get();
         $reqPermissions = Permission_submodule::where('rol', $id)->get();
     
         $reqPermissionsDefault = [

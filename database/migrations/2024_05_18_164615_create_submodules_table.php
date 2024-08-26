@@ -19,7 +19,7 @@ class CreateSubmodulesTable extends Migration
             $table->string('submodule', 25);
             $table->string('path', 25);
             $table->string('description', 150)->nullable();
-            $table->string('icon', 150);
+            $table->string('icon', 150)->nullable();
             $table->integer('status');
             $table->timestamps();
         });

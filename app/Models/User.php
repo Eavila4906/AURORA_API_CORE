@@ -53,4 +53,13 @@ class User extends Authenticatable
         ->where('user_roles.status', 1)
         ->get();
     }
+
+    public static function userCompanies($user) 
+    {
+        return User_company::select('companies.id', 'companies.name')
+        ->join('companies', 'user_companies.company', '=', 'companies.id')
+        ->where('user_companies.user', $user->id)
+        ->where('user_companies.status', 1)
+        ->get();
+    }
 }

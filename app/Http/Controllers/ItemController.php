@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Models\Item;
 use App\Models\Submodule;
 use App\Models\Permission_item;
@@ -11,7 +12,7 @@ class ItemController extends Controller
 {
     public function index()
     {
-        $items = Item::with(['submodule:id,submodule'])->get();
+        $items = Item::with(['submodule:id,submodule', 'aurora_app:id,app'])->get();
 
         return response()->json([
             'message' => 'Registros encontrados', 
@@ -22,7 +23,7 @@ class ItemController extends Controller
 
     public function show($id)
     {
-        $item = Item::with(['submodule:id,submodule'])->find($id);
+        $item = Item::with(['submodule:id,submodule', 'aurora_app:id,app'])->find($id);
 
         if (!$item) {
             return response()->json([
@@ -42,8 +43,15 @@ class ItemController extends Controller
     {
         try {
             $validatedData = $request->validate([
+                'app_id' => 'required',
                 'submodule_id' => 'required',
-                'item' => 'required|unique:items,item',
+                'item' => [
+                    'required',
+                    Rule::unique('items')->where(function ($query) use ($request) {
+                        return $query->where('app_id', $request->app_id);
+                    }),
+                ],
+                'path' => 'required',
                 'status' => 'required',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -66,11 +74,12 @@ class ItemController extends Controller
         }
 
         $item = Item::create([
+            'app_id' => $request->app_id,
             'submodule_id' => $request->submodule_id,
             'item' => $request->item,
             'path' => $request->path,
             'description' => $request->description,
-            'icon' => $request->icon,
+            'icon' => $request->icon == '' ? '<i class="fa-solid fa-circle"></i>' : $request->icon,
             'status' => $request->status,
         ]);
 
@@ -94,7 +103,15 @@ class ItemController extends Controller
 
         try {
             $validatedData = $request->validate([
-                'item' => 'required|unique:items,item,' . $id . ',id',
+                'app_id' => 'required',
+                'submodule_id' => 'required',
+                'item' => [
+                    'required',
+                    Rule::unique('items', 'item')->ignore($id, 'id')->where(function ($query) use ($request) {
+                        return $query->where('app_id', $request->app_id);
+                    }),
+                ],
+                'path' => 'required',
                 'status' => 'required',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -108,11 +125,12 @@ class ItemController extends Controller
             ], 422);
         }
 
+        $item->app_id = $request->app_id;
         $item->item = $request->item;
         $item->submodule_id = $request->submodule_id;
         $item->path = $request->path;
         $item->description = $request->description;
-        $item->icon = $request->icon;
+        $item->icon = $request->icon == '' ? '<i class="fa-solid fa-circle"></i>' : $request->icon;
         $item->status = $request->status;
         $item->save();
 

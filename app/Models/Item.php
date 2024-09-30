@@ -10,6 +10,7 @@ class Item extends Model
     use HasFactory;
 
     protected $fillable = [
+        'app_id',
         'submodule_id', 
         'item', 
         'path', 
@@ -21,5 +22,10 @@ class Item extends Model
     public function submodule()
     {
         return $this->belongsTo(Submodule::class);
+    }
+
+    public function aurora_app()
+    {
+        return $this->belongsTo(Aurora_app::class, 'app_id', 'id');
     }
 }

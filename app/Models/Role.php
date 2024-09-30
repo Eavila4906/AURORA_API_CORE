@@ -9,6 +9,16 @@ class Role extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['rol', 'description', 'status'];
+    protected $fillable = [
+        'app_id',
+        'rol', 
+        'description', 
+        'status'
+    ];
     protected $primaryKey = 'id';
+
+    public function aurora_app()
+    {
+        return $this->belongsTo(Aurora_app::class, 'app_id', 'id');
+    }
 }

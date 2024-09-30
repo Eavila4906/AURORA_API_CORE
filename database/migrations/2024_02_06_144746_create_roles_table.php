@@ -10,6 +10,7 @@ class CreateRolesTable extends Migration
     {
         Schema::create('roles', function (Blueprint $table) {
             $table->id('id');
+            $table->foreignId('app_id')->constrained('aurora_apps');
             $table->string('rol', 25);
             $table->string('description', 200)->nullable();
             $table->integer('status');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Models\Role;
 use App\Models\Permission;
 use App\Models\User_role;
@@ -11,7 +12,7 @@ class RoleController extends Controller
 {
     public function index()
     {
-        $roles = Role::all();
+        $roles = Role::with(['aurora_app:id,app'])->get();
         
         return response()->json([
             'message' => 'Registros encontrados', 
@@ -22,7 +23,7 @@ class RoleController extends Controller
 
     public function show($id)
     {
-        $role = Role::find($id);
+        $role = Role::with(['aurora_app:id,app'])->find($id);
 
         if (!$role) {
             return response()->json([
@@ -42,13 +43,19 @@ class RoleController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'rol' => 'required|unique:roles,rol',
+                'app_id' => 'required',
+                'rol' => [
+                    'required',
+                    Rule::unique('roles')->where(function ($query) use ($request) {
+                        return $query->where('app_id', $request->app_id);
+                    }),
+                ],
                 'status' => 'required',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             $errors = $e->validator->errors();
-            $error = $errors->get('rol');
-            $message = $error ? 'This record already exists.' : 'All fields are required';
+            $error = $errors;
+            $message = $error->get('rol') ? 'This record already exists.' : 'All fields are required';
             
             return response()->json([
                 'message' => $message, 
@@ -57,6 +64,7 @@ class RoleController extends Controller
         }
 
         $role = Role::create([
+            'app_id' => $request->app_id,
             'rol' => $request->rol,
             'description' => $request->description,
             'status' => $request->status,
@@ -82,7 +90,13 @@ class RoleController extends Controller
 
         try {
             $validatedData = $request->validate([
-                'rol' => 'required|unique:roles,rol,' . $id . ',id',
+                'app_id' => 'required',
+                'rol' => [
+                    'required',
+                    Rule::unique('roles', 'rol')->ignore($id, 'id')->where(function ($query) use ($request) {
+                        return $query->where('app_id', $request->app_id);
+                    }),
+                ],
                 'status' => 'required',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -96,6 +110,7 @@ class RoleController extends Controller
             ], 422);
         }
 
+        $role->app_id = $request->app_id;
         $role->rol = $request->rol;
         $role->description = $request->description;
         $role->status = $request->status;

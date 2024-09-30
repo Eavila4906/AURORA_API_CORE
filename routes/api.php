@@ -16,6 +16,7 @@ use App\Http\Controllers\User_roleController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\User_companyController;
+use App\Http\Controllers\Aurora_appController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,6 +57,15 @@ Route::middleware(['auth:api', 'throttle:100,1'])->group(function () {
      * Menu path
      */
     Route::post('/menu', [MenuController::class, 'index']);
+
+    /** 
+     * Aurora apps paths
+     */
+    Route::get('/apps', [Aurora_appController::class, 'index']);
+    Route::get('/app/{id}', [Aurora_appController::class, 'show']);
+    Route::post('/app/create', [Aurora_appController::class, 'store']);
+    Route::put('/app/update/{id}', [Aurora_appController::class, 'update']);
+    Route::delete('/app/delete/{id}', [Aurora_appController::class, 'destroy']);
 
     /** 
      * Users paths

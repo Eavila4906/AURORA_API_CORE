@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Module extends Model
 {
     protected $fillable = [
+        'app_id',
         'module', 
         'path', 
         'description',
@@ -18,5 +19,10 @@ class Module extends Model
     public function submodules()
     {
         return $this->hasMany(Submodule::class);
+    }
+
+    public function aurora_app()
+    {
+        return $this->belongsTo(Aurora_app::class, 'app_id', 'id');
     }
 }

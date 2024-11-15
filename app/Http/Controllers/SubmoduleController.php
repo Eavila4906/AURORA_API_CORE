@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Models\Submodule;
 use App\Models\Module;
 use App\Models\Permission_submodule;
@@ -11,7 +12,7 @@ class SubmoduleController extends Controller
 {
     public function index()
     {
-        $submodules = Submodule::with(['module:id,module'])->get();
+        $submodules = Submodule::with(['module:id,module', 'aurora_app:id,app'])->get();
 
         return response()->json([
             'message' => 'Registros encontrados', 
@@ -22,7 +23,7 @@ class SubmoduleController extends Controller
 
     public function show($id)
     {
-        $submodule = Submodule::with(['module:id,module'])->find($id);
+        $submodule = Submodule::with(['module:id,module', 'aurora_app:id,app'])->find($id);
 
         if (!$submodule) {
             return response()->json([
@@ -42,8 +43,15 @@ class SubmoduleController extends Controller
     {
         try {
             $validatedData = $request->validate([
+                'app_id' => 'required',
                 'module_id' => 'required',
-                'submodule' => 'required|unique:submodules,submodule',
+                'submodule' => [
+                    'required',
+                    Rule::unique('submodules')->where(function ($query) use ($request) {
+                        return $query->where('app_id', $request->app_id);
+                    }),
+                ],
+                'path' => 'required',
                 'status' => 'required',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -66,11 +74,12 @@ class SubmoduleController extends Controller
         }
 
         $submodule = Submodule::create([
+            'app_id' => $request->app_id,
             'module_id' => $request->module_id,
             'submodule' => $request->submodule,
             'path' => $request->path,
             'description' => $request->description,
-            'icon' => $request->icon,
+            'icon' => $request->icon == '' ? '<i class="fa-solid fa-circle"></i>' : $request->icon,
             'status' => $request->status,
         ]);
 
@@ -94,7 +103,15 @@ class SubmoduleController extends Controller
 
         try {
             $validatedData = $request->validate([
-                'submodule' => 'required|unique:submodules,submodule,' . $id . ',id',
+                'app_id' => 'required',
+                'module_id' => 'required',
+                'submodule' => [
+                    'required',
+                    Rule::unique('submodules', 'submodule')->ignore($id, 'id')->where(function ($query) use ($request) {
+                        return $query->where('app_id', $request->app_id);
+                    }),
+                ],
+                'path' => 'required',
                 'status' => 'required',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -108,11 +125,12 @@ class SubmoduleController extends Controller
             ], 422);
         }
 
+        $submodule->app_id = $request->app_id;
         $submodule->submodule = $request->submodule;
         $submodule->module_id = $request->module_id;
         $submodule->path = $request->path;
         $submodule->description = $request->description;
-        $submodule->icon = $request->icon;
+        $submodule->icon = $request->icon == '' ? '<i class="fa-solid fa-circle"></i>' : $request->icon;
         $submodule->status = $request->status;
         $submodule->save();
 

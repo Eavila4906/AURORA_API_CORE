@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Models\Module;
 use App\Models\Permission;
 
@@ -10,7 +11,7 @@ class ModuleController extends Controller
 {
     public function index()
     {
-        $modules = Module::all();
+        $modules = Module::with(['aurora_app:id,app'])->get();
         
         return response()->json([
             'message' => 'Registros encontrados', 
@@ -21,7 +22,7 @@ class ModuleController extends Controller
 
     public function show($id)
     {
-        $module = Module::find($id);
+        $module = Module::with(['aurora_app:id,app'])->find($id);
 
         if (!$module) {
             return response()->json([
@@ -41,7 +42,14 @@ class ModuleController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'module' => 'required|unique:modules,module',
+                'app_id' => 'required',
+                'module' => [
+                    'required',
+                    Rule::unique('modules')->where(function ($query) use ($request) {
+                        return $query->where('app_id', $request->app_id);
+                    }),
+                ],
+                'path' => 'required',
                 'status' => 'required',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -57,10 +65,11 @@ class ModuleController extends Controller
         }
 
         $module = Module::create([
+            'app_id' => $request->app_id,
             'module' => $request->module,
             'path' => $request->path,
             'description' => $request->description,
-            'icon' => $request->icon,
+            'icon' => $request->icon == '' ? '<i class="fa-solid fa-circle"></i>' : $request->icon,
             'status' => $request->status,
         ]);
 
@@ -84,7 +93,14 @@ class ModuleController extends Controller
 
         try {
             $validatedData = $request->validate([
-                'module' => 'required|unique:modules,module,' . $id . ',id',
+                'app_id' => 'required',
+                'module' => [
+                    'required',
+                    Rule::unique('modules', 'module')->ignore($id, 'id')->where(function ($query) use ($request) {
+                        return $query->where('app_id', $request->app_id);
+                    }),
+                ],
+                'path' => 'required',
                 'status' => 'required',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -98,10 +114,11 @@ class ModuleController extends Controller
             ], 422);
         }
 
+        $module->app_id = $request->app_id;
         $module->module = $request->module;
         $module->path = $request->path;
         $module->description = $request->description;
-        $module->icon = $request->icon;
+        $module->icon = $request->icon == '' ? '<i class="fa-solid fa-circle"></i>' : $request->icon;
         $module->status = $request->status;
         $module->save();
 

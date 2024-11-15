@@ -57,7 +57,7 @@ class User_roleController extends Controller
             ], 404);
         }
 
-        $roles = Role::where('status', 1)->select('id', 'rol')->get();
+        $roles = Role::where('status', 1)->with(['aurora_app:id,app'])->select('id', 'rol', 'app_id')->get();
         $user_roles = User_role::where('user', $id)->get();
 
         $UserRoles = array(

@@ -15,11 +15,12 @@ class CreateSubmodulesTable extends Migration
     {
         Schema::create('submodules', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('app_id')->constrained('aurora_apps');
             $table->foreignId('module_id')->constrained('modules');
             $table->string('submodule', 25);
             $table->string('path', 25);
             $table->string('description', 150)->nullable();
-            $table->string('icon', 150)->nullable();
+            $table->string('icon', 150)->nullable()->default('<i class="fas fa-circle"></i>');
             $table->integer('status');
             $table->timestamps();
         });

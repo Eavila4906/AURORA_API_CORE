@@ -10,6 +10,7 @@ class Submodule extends Model
     use HasFactory;
 
     protected $fillable = [
+        'app_id',
         'module_id',
         'submodule', 
         'path', 
@@ -26,5 +27,10 @@ class Submodule extends Model
     public function items()
     {
         return $this->hasMany(Item::class);
+    }
+
+    public function aurora_app()
+    {
+        return $this->belongsTo(Aurora_app::class, 'app_id', 'id');
     }
 }

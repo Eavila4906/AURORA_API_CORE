@@ -47,8 +47,9 @@ class User extends Authenticatable
 
     public static function userRoles($user) 
     {
-        return User_role::select('roles.id', 'roles.rol')
+        return User_role::select('roles.id', 'roles.rol', 'aurora_apps.app')
         ->join('roles', 'user_roles.rol', '=', 'roles.id')
+        ->join('aurora_apps', 'roles.app_id', '=', 'aurora_apps.id')
         ->where('user_roles.user', $user->id)
         ->where('user_roles.status', 1)
         ->get();

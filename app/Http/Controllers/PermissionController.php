@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Permission;
 use App\Models\Module;
+use App\Models\Role;
 
 class PermissionController extends Controller
 {
     public function showByRole($id) 
     {
-        $reqModule = Module::where('status', '!=', 0)->select('id', 'module')->get();
+        $appRole = Role::where('id', $id)->with(['aurora_app:id,app'])->select('id', 'app_id')->first();
+        $reqModule = Module::where('status', '!=', 0)->where('app_id', $appRole->app_id)
+        ->select('id', 'module')->get();
         $reqPermissions = Permission::where('rol', $id)->get();
     
         $reqPermissionsDefault = [
@@ -21,7 +24,8 @@ class PermissionController extends Controller
         ];
     
         $reqPermissionsRol = [
-            'role' => $id
+            'role' => $id,
+            'app' => $appRole->aurora_app->app
         ];
         
         if (empty($reqPermissions)) {

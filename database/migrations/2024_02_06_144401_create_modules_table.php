@@ -10,10 +10,11 @@ class CreateModulesTable extends Migration
     {
         Schema::create('modules', function (Blueprint $table) {
             $table->id('id');
+            $table->foreignId('app_id')->constrained('aurora_apps');
             $table->string('module', 25);
             $table->string('path', 25);
             $table->string('description', 150)->nullable();
-            $table->string('icon', 150)->nullable();
+            $table->string('icon', 150)->nullable()->default('<i class="fas fa-circle"></i>');
             $table->integer('status');
             $table->timestamps();
         });

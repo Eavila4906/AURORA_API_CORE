@@ -19,47 +19,64 @@ class AuthController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             $errors = $e->validator->errors();
             $message = $errors ? 'All fields are required' : null;
-            
+
             return response()->json([
-                'message' => $message, 
+                'message' => $message,
                 'status' => 422
             ], 422);
         }
 
-        if (Auth::attempt(['username' => $request->user, 'password' => $request->password]) ||
-            Auth::attempt(['email' => $request->user, 'password' => $request->password])) 
-        {
-            $user = Auth::user();
-            $token = $user->createToken($request->email)->accessToken;
+        // Verificar si el usuario existe en la base de datos
+        $user = User::where('username', $request->user)
+                    ->orWhere('email', $request->user)
+                    ->first();
 
-            $userRoles = User::userRoles($user);
-            $userCompanies = User::userCompanies($user);
-            $user->roles = $userRoles;
-            $user->companies = $userCompanies;
+        if ($user) {
+            // Si el usuario existe pero está inactivo
+            if ($user->status != 1) {
+                return response()->json([
+                    'message' => 'Usuario inactivo, contáctese con el administrador o soporte técnico',
+                    'status' => 403
+                ], 403);
+            }
 
-            $data = [
-                'access_token' => $token,
-                'user' => [
-                    'id' => $user->id,
-                    'username' => $user->username,
-                    'name' => $user->name,
-                    'lastname' => $user->lastname,
-                    'roles' => $user->roles,
-                    'companies' => $user->companies
-                ]
-            ];
+            // Verificar credenciales
+            if (Auth::attempt(['username' => $request->user, 'password' => $request->password]) ||
+                Auth::attempt(['email' => $request->user, 'password' => $request->password])) 
+            {
+                $user = Auth::user();
+                $token = $user->createToken($request->email)->accessToken;
 
-            return response()->json([
-                'message' => 'Se ha iniciado sesión exitosamente', 
-                'data' => $data, 
-                'status' => 200
-            ], 200);
-        } else {
-            return response()->json([
-                'message' => 'Credenciales incorrectas',
-                'status' => 401
-            ], 401);
+                $userRoles = User::userRoles($user);
+                $userCompanies = User::userCompanies($user);
+                $user->roles = $userRoles;
+                $user->companies = $userCompanies;
+
+                $data = [
+                    'access_token' => $token,
+                    'user' => [
+                        'id' => $user->id,
+                        'username' => $user->username,
+                        'name' => $user->name,
+                        'lastname' => $user->lastname,
+                        'roles' => $user->roles,
+                        'companies' => $user->companies
+                    ]
+                ];
+
+                return response()->json([
+                    'message' => 'Se ha iniciado sesión exitosamente',
+                    'data' => $data,
+                    'status' => 200
+                ], 200);
+            }
         }
+
+        // Si el usuario no existe o las credenciales son incorrectas
+        return response()->json([
+            'message' => 'Credenciales incorrectas',
+            'status' => 401
+        ], 401);
     }
 
     public function logout(Request $request)

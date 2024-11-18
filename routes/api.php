@@ -35,13 +35,11 @@ Route::get('/notauthenticated', function () {
     return response()->json(['message' => 'User not authenticated'], 401);
 })->name('notauthenticated');
 
-Route::middleware(['auth:api', 'throttle:100,1'])->group(function () {
+Route::middleware(['auth:api'])->group(function () {
     /**
      * Validate auth path
      */
-    Route::get('/validateToken', function () {
-        return response()->json(['message' => 'Token valid', 'status' => 'ok'], 200);
-    });
+    Route::get('/verifyToken', [AuthController::class, 'verifyToken']);
 
     /**
      * Logout path

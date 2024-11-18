@@ -109,4 +109,32 @@ class AuthController extends Controller
             'status' => 200
         ], 200);
     }
+
+    public function verifyToken() 
+    {
+        $user = User::find(Auth::id());
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Token inválido o usuario no autenticado',
+                'status' => 401,
+                'user' => $user
+            ], 401);
+        }
+        
+        if ($user->status !== 1) 
+        {
+            return response()->json([
+                'message' => 'Usuario inactivo, contáctese con el administrador o soporte técnico', 
+                'status' => 403,
+                'user' => $user
+            ], 403);
+        }
+
+        return response()->json([
+            'message' => 'Token valid', 
+            'status' => 200,
+            'user' => $user
+        ], 200);
+    }
 }

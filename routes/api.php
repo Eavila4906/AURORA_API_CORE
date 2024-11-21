@@ -73,6 +73,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/user/create', [UserController::class, 'store']);
     Route::put('/user/update/{id}', [UserController::class, 'update']);
     Route::delete('/user/delete/{id}', [UserController::class, 'destroy']);
+    Route::post('/user/password_change', [UserController::class, 'passwordChange']);
 
     /** 
      * Modules paths

@@ -217,4 +217,37 @@ class UserController extends Controller
             'status' => 200
         ], 200);
     }
+
+    public function passwordChange(Request $request)
+    {
+        $user = auth()->user();
+
+        try {
+            $validatedData = $request->validate([
+                'currentPassword' => 'required',
+                'newPassword' => 'required'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => $e->validator->errors(),
+                'status' => 422
+            ], 422);
+        }
+
+        if (!Hash::check($request->currentPassword, $user->password)) {
+            return response()->json([
+                'message' => 'La contraseña actual no es correcta',
+                'status' => 403
+            ], 403);
+        }
+
+        $user->password = Hash::make($request->newPassword);
+        $user->save();
+
+        return response()->json([
+            'message' => 'Contraseña actualizada exitosamente.',
+            'status' => 200
+        ], 200);
+    }
+
 }

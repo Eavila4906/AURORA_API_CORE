@@ -121,7 +121,7 @@ class Aurora_appController extends Controller
             ], 404);
         }
 
-        $rol = Roles::where('app_id', $id)->get();
+        $rol = Role::where('app_id', $id)->get();
         if ($rol->count() > 0) {
             return response()->json([
                 'message' => 'No se puede eliminar esta app ya que cuenta con roles asignados.',

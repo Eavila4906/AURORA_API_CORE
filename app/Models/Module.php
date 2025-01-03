@@ -8,6 +8,7 @@ class Module extends Model
 {
     protected $fillable = [
         'app_id',
+        'level',
         'module', 
         'path', 
         'description',
